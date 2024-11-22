@@ -12,6 +12,7 @@ import android.widget.TextView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
+import java.util.Calendar
 
 class deliv : AppCompatActivity() {
     lateinit var kolvosalad: EditText
@@ -37,31 +38,36 @@ class deliv : AppCompatActivity() {
         startActivity(intent)
     }
 
+    fun check(v: View){
+        val result = findViewById<TextView>(R.id.result)
+
+        val pricesalad: Int = 150
+        val priceburger: Int = 250
+        val pricechips: Int = 50
+
+
+        var klvsld = kolvosalad.text.toString().toIntOrNull() ?: 0
+        var klvburg = kolvoburger.text.toString().toIntOrNull() ?: 0
+        var klvchip = kolvochips.text.toString().toIntOrNull() ?: 0
+        val fullprice: Int = klvsld * pricesalad + klvburg * priceburger + klvchip * pricechips
+
+        result.text = "Стоимость всего заказа: $fullprice руб"
+    }
+
     fun order(v: View){
         val userId = auth.currentUser?.uid
         val kolvosalad = findViewById<EditText>(R.id.editTextText)
         val kolvoburger = findViewById<EditText>(R.id.editTextText2)
         val kolvochips = findViewById<EditText>(R.id.editTextText3)
-        val result = findViewById<TextView>(R.id.result)
         val date = findViewById<CalendarView>(R.id.calendarView)
 
-        var klvsld = kolvosalad.text.toString().toInt()
-        var klvburg = kolvoburger.text.toString().toInt()
-        var klvchip = kolvochips.text.toString().toInt()
+        var klvsld = kolvosalad.text.toString().toIntOrNull() ?: 0
+        var klvburg = kolvoburger.text.toString().toIntOrNull() ?: 0
+        var klvchip = kolvochips.text.toString().toIntOrNull() ?: 0
 
-
-
-        if (kolvosalad.text.toString().isEmpty()){
-            klvsld = 0
-        }
-
-        if (kolvoburger.text.toString().isEmpty()){
-            klvburg = 0
-        }
-
-        if (kolvochips.text.toString().isEmpty()){
-            klvchip = 0
-        }
+        // Устанавливаем минимальную дату на текущую
+        val today = Calendar.getInstance()
+        date.minDate = today.timeInMillis
 
         val pricesalad: Int = 150
         val priceburger: Int = 250
@@ -71,6 +77,16 @@ class deliv : AppCompatActivity() {
 
         //result.setText("Стоимость всего заказа: %.2f".format(fullprice) + "руб")
 
+        // Получаем дату из CalendarView
+        val selectedDate = Calendar.getInstance().apply {
+            timeInMillis = date.date // Получаем выбранную дату в миллисекундах
+        }
+        val day = selectedDate.get(Calendar.DAY_OF_MONTH)
+        val month = selectedDate.get(Calendar.MONTH) + 1 // Месяцы начинаются с 0
+        val year = selectedDate.get(Calendar.YEAR)
+
+        val formattedDate = "$day/$month/$year" // Форматируем дату как строку
+
 
 
         val db = Firebase.firestore
@@ -79,6 +95,7 @@ class deliv : AppCompatActivity() {
             "price" to fullprice,
             "kolvoorder" to kolvoorder,
             "user" to userId,
+            "date" to formattedDate
         )
         // Add a new document with a generated ID
         db.collection("orders")
