@@ -38,24 +38,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getUserProfile() {
-        val user = Firebase.auth.currentUser
-        user?.let {
-            // Name, email address, and profile photo Url
-            val name = it.displayName
-            val email = it.email
-            val photoUrl = it.photoUrl
-
-            // Check if user's email is verified
-            val emailVerified = it.isEmailVerified
-
-            // The user's ID, unique to the Firebase project. Do NOT use this value to
-            // authenticate with your backend server, if you have one. Use
-            // FirebaseUser.getIdToken() instead.
-            val uid = it.uid
-        }
-        // [END get_user_profile]
-    }
     private fun signIn(email: String, password: String) {
         // [START sign_in_with_email]
         auth.signInWithEmailAndPassword(email, password)
